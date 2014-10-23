@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -17,9 +17,11 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -55,8 +57,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="asrt.h" />
-    <ClInclude Include="conf.h" />
-    <ClInclude Include="log.h" />
     <ClInclude Include="host.h" />
     <ClInclude Include="techniques.h" />
     <ClInclude Include="timer.h" />
@@ -69,11 +69,7 @@
     <ClInclude Include="utils_iface.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="conf.cpp" />
-    <ClCompile Include="conf_utest.cpp" />
     <ClCompile Include="list_utest.cpp" />
-    <ClCompile Include="log.cpp" />
-    <ClCompile Include="log_utest.cpp" />
     <ClCompile Include="utest.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="utils_utest.cpp" />

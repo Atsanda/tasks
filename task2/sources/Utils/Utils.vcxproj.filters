@@ -4,18 +4,6 @@
     <ClCompile Include="list_utest.cpp">
       <Filter>raw_list</Filter>
     </ClCompile>
-    <ClCompile Include="log_utest.cpp">
-      <Filter>log</Filter>
-    </ClCompile>
-    <ClCompile Include="log.cpp">
-      <Filter>log</Filter>
-    </ClCompile>
-    <ClCompile Include="conf_utest.cpp">
-      <Filter>conf</Filter>
-    </ClCompile>
-    <ClCompile Include="conf.cpp">
-      <Filter>conf</Filter>
-    </ClCompile>
     <ClCompile Include="utest.cpp">
       <Filter>utest</Filter>
     </ClCompile>
@@ -29,12 +17,6 @@
   <ItemGroup>
     <ClInclude Include="list.h">
       <Filter>raw_list</Filter>
-    </ClInclude>
-    <ClInclude Include="log.h">
-      <Filter>log</Filter>
-    </ClInclude>
-    <ClInclude Include="conf.h">
-      <Filter>conf</Filter>
     </ClInclude>
     <ClInclude Include="utest.h">
       <Filter>utest</Filter>
@@ -73,12 +55,6 @@
     </Filter>
     <Filter Include="Make">
       <UniqueIdentifier>{da3817da-acd0-4b20-8505-51bfd704224c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="log">
-      <UniqueIdentifier>{3bbd1d44-6ef8-460b-a0fb-f0a04e443938}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="conf">
-      <UniqueIdentifier>{01a362a7-a015-4971-a31f-cf773b389e85}</UniqueIdentifier>
     </Filter>
     <Filter Include="utest">
       <UniqueIdentifier>{8dc22d0d-f9ea-4880-9d5e-255f3ac07b48}</UniqueIdentifier>

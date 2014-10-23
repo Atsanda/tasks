@@ -95,8 +95,7 @@ bool Utils::uTest()
     RUN_TEST( TestSingle::uTestSingle);
     /** Tets list classes */
     RUN_TEST( uTestList);
-    /** Test logs */
-    RUN_TEST_OUT_FILE_CHECK( uTestLogs, "log_utest.txt");
+
     return true;
 }
 

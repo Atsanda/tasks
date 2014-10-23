@@ -42,8 +42,7 @@
 
 #include "list.h"
 #include "singleton.h"
-#include "log.h"
-#include "conf.h"
+
 
 
 namespace Utils
@@ -54,7 +53,7 @@ namespace Utils
      * Test list classes
      */
     bool uTestList( UnitTest *utest_p);
-
+    
     /**
      * Test Utils package
      */
