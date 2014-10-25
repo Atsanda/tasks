@@ -1,5 +1,5 @@
 /**
- * @file: task/iface.h 
+ * @file: task/iface.h
  * Interface of a programming task 2
  */
 #include "../Utils/utils_iface.h"
@@ -46,8 +46,34 @@ namespace Task
         {
         public:
             //---- Iterator types ----
-            class pred_iterator;// iterator for node's predecessor edges 
-            class succ_iterator;// iterator for node's successor edges 
+            //
+            // iterator for node's predecessor edges
+            //
+            class pred_iterator
+            {
+                public:
+
+                    pred_iterator();//<Constructor private may be
+                    pred_iterator(pred_iterator *p,EdgeT *edg);//<Constructor with parameters
+                    ~pred_iterator();//<Destructor
+
+                    bool           operator ==(const pred_iterator& other);
+                    bool           operator !=(const pred_iterator& other);
+                    pred_iterator& operator ++(); //prefix incremention
+                    pred_iterator  operator ++(int); //postfix incremention
+                    pred_iterator& operator =(const pred_iterator& other);
+                    EdgeT&         operator *();
+
+                    pred_iterator* get_next_iter() const;
+                    EdgeT*         get_pred_edge() const;
+
+                private:
+                    pred_iterator *next_iter;
+                    EdgeT *pred_edge;
+            };
+
+
+            class succ_iterator;// iterator for node's successor edges
 
             pred_iterator preds_begin(); // Get iterator to the first predecessor edge
             pred_iterator preds_end();   // Get end iterator for the predecessors
@@ -56,11 +82,11 @@ namespace Task
             pred_iterator succs_end();   // Get end iterator for the successors
 
             Graph& graph();  // Get the graph reference
-            UId uid() const; // Get the node's unique id 
+            UId uid() const; // Get the node's unique id
 
             EdgeT& first_pred(); // Convinience routine returns first predecessor edge or throws an exception
             EdgeT& first_succ(); // Convinience routine returns first successor edge or throws an exception
-            
+
             UInt32 num_preds() const; // Get the number of predecessors
             UInt32 num_succs() const; // Get the number of successors
 
@@ -71,13 +97,22 @@ namespace Task
             // ---- Default  and copy constructors turned off ---
             Node();
             Node(const Node &n);
-            
+
             // ---- The internal implementation routines ----
 
             // ---- The data involved in the implementation ----
+            Graph& parent_graph;
+
+            pred_iterator preds_first;
+            pred_iterator preds_last;
+
+            succ_iterator succs_first;
+            succ_iterator succs_last;
+
+            UId id;
         };
 
-        // 
+        //
         // Graph edge representation
         //
         class Edge
@@ -104,7 +139,7 @@ namespace Task
     // ---- Graph interface ----
         class node_iterator; // Iterator for the graph's nodes
         class edge_iterator; // Iterator for the graph's edges
-               
+
         node_iterator nodes_begin(); // Get the iterator to the first node
         node_iterator nodes_end();   // Get the end iterator for the nodes
 
@@ -116,7 +151,7 @@ namespace Task
 
         NodeT &create_node();                   // Create a new node and return reference to it
         EdgeT &create_edge( NodeT& pred, NodeT& succ); // Create a new edge between given nodes
-    
+
         void remove( NodeT& node); // Remove and delete node
         void remove( EdgeT& edge); // Remove and delete edge
 
