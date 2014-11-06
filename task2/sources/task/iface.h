@@ -188,6 +188,7 @@ namespace Task
         void remove( EdgeT& edge); // Remove and delete edge
 
         virtual ~Graph(); // Destructor, deletes all nodes and edges
+		Graph();
     private:
         // ---- The internal implementation ----
         // ---- The data involved in the implementation ----

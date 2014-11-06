@@ -131,26 +131,32 @@ namespace Task
             pred_iterator *New_pred_itr;
 
             try {
-                pred_iterator *New_pred_itr = new pred_iterator;
+                New_pred_itr = new pred_iterator;
                 New_pred_itr->data = p;
             } catch (std::bad_alloc& ba)
             {
             std::cerr << "bad_alloc caught: " << ba.what() << endl;
             }
 
-            if( preds_num == 0 )
+            if( head_pred == tail_pred &&
+				preds_num == 0)
             {
-                head_pred = New_pred_itr;
-                tail_pred = New_pred_itr;
+                head_pred				= New_pred_itr;
+				New_pred_itr->next_iter = tail_pred;
+				tail_pred->prev_iter	= New_pred_itr;
                 preds_num++;
                 return New_pred_itr;
             }
-
-            New_pred_itr->next_iter = head_pred;
-            head_pred   ->prev_iter =
-            head_pred               = New_pred_itr;
-            preds_num++;
-            return New_pred_itr;
+			if (head_pred != tail_pred &&
+				preds_num > 0)
+			{
+				New_pred_itr->next_iter = head_pred;
+				head_pred->prev_iter    = New_pred_itr;
+				head_pred = New_pred_itr;
+				preds_num++;
+				return New_pred_itr;
+			}
+			assert(1);
         }
 
         template <class NodeT,class EdgeT> void
@@ -161,15 +167,14 @@ namespace Task
             {
                 //!throw
             }
-            if(to_delete->next_iter == NULL &&
+            if(to_delete->next_iter == tail_pred &&
                to_delete->prev_iter == NULL &&
                to_delete            == head_pred &&
-               to_delete            == tail_pred &&
                preds_num            == 1)
             {
                 delete to_delete;
-                head_pred = NULL;
-                tail_pred = NULL;
+				tail_pred->prev_iter = NULL;
+                head_pred = tail_pred;
                 preds_num = 0;
                 return ;
             }
@@ -219,6 +224,7 @@ namespace Task
         Graph<NodeT,EdgeT>::Node::succs_end()
         {
             //!throw here
+			assert(tail_succ != NULL);
             return *tail_succ;
         }
 
@@ -235,19 +241,25 @@ namespace Task
             std::cerr << "bad_alloc caught: " << ba.what() << endl;
             }
 
-            if( succs_num == 0 )
+            if( head_succ == tail_succ &&
+				succs_num == 0 )
             {
-                head_succ = New_succ_itr;
-                tail_succ = New_succ_itr;
+                head_succ				= New_succ_itr;
+				tail_succ->prev_iter    = New_succ_itr;
+                New_succ_itr->next_iter = tail_succ;
                 succs_num++;
                 return New_succ_itr;
             }
-
-            New_succ_itr->next_iter = head_succ;
-            head_succ   ->prev_iter = New_succ_itr;
-            head_succ               = New_succ_itr;
-            succs_num++;
-            return New_succ_itr;
+			if (head_succ != tail_succ &&
+				succs_num != 0)
+			{
+				New_succ_itr->next_iter = head_succ;
+				head_succ->prev_iter = New_succ_itr;
+				head_succ = New_succ_itr;
+				succs_num++;
+				return New_succ_itr;
+			}
+			assert(1);
         }
 
         template <class NodeT,class EdgeT> void
@@ -258,21 +270,21 @@ namespace Task
             {
                 //!throw
             }
-            if(to_delete->next_iter == NULL &&
+            if(to_delete->next_iter == tail_succ &&
                to_delete->prev_iter == NULL &&
                to_delete            == head_succ &&
-               to_delete            == tail_succ &&
                succs_num            == 1)
             {
                 delete to_delete;
-                head_succ = NULL;
-                tail_succ = NULL;
+				tail_succ->prev_iter = NULL;
+				head_succ = tail_succ;
                 succs_num = 0;
                 return ;
             }
             if(to_delete->prev_iter == NULL &&
+			   to_delete->next_iter != NULL &&
                to_delete            == head_succ &&
-               succs_num            != 0)
+               succs_num            > 1)
             {
                 head_succ            = to_delete->next_iter;
                 head_succ->prev_iter = NULL;
@@ -280,19 +292,9 @@ namespace Task
                 delete to_delete;
                 return;
             }
-            if(to_delete->next_iter == NULL &&
-               to_delete            == tail_succ &&
-               succs_num            != 0)
-            {
-                tail_succ = to_delete->prev_iter;
-                tail_succ->next_iter = NULL;
-                succs_num--;
-                delete to_delete;
-                return;
-            }
             if(to_delete->next_iter != NULL &&
                to_delete->prev_iter != NULL &&
-               succs_num            != 0)
+               succs_num             > 1)
             {
                 (to_delete->prev_iter)->next_iter = to_delete->next_iter;
                 (to_delete->next_iter)->prev_iter = to_delete->prev_iter;
@@ -301,7 +303,8 @@ namespace Task
                 return;
             }
 
-            //!throw
+			assert(1);
+			throw(1);
 
         }
 
@@ -353,20 +356,34 @@ namespace Task
         Graph<NodeT,EdgeT>::Node::Node(Graph& g) :
 
             parent_graph(g) , id((g.num_nodes())+1),
-            preds_num(0), head_pred(NULL), tail_pred(NULL),
-            succs_num(0), head_succ(NULL), tail_succ(NULL)
-        {}
+            preds_num(0),  succs_num(0)
+        {
+			try {
+				tail_pred = new pred_iterator;
+			}
+			catch (std::bad_alloc& ba)
+			{
+				std::cerr << "bad_alloc caught: " << ba.what() << endl;
+			}
+
+			head_pred = tail_pred;
+
+			try {
+				tail_succ = new succ_iterator;
+			}
+			catch (std::bad_alloc& ba)
+			{
+				std::cerr << "bad_alloc caught: " << ba.what() << endl;
+			}
+
+			head_succ = tail_succ;
+		}
 
         template <class NodeT,class EdgeT>//! ????????????????
         Graph<NodeT,EdgeT>::Node::~Node()
         {
-            /*for( ; head_)
-
-            delete &succs_first;
-            delete &succs_last;
-            succs_num = 0;*/
-
-            //UID!!!
+			delete tail_pred;
+			delete tail_succ;
         }
 
         template <class NodeT,class EdgeT> //useless?
@@ -485,22 +502,29 @@ namespace Task
             std::cerr << "bad_alloc caught: " << ba.what() << endl;
             }
 
-        if( nodes_numbr == 0 )
+        if( head_node   == tail_node &&
+			nodes_numbr == 0 )
         {
-            head_node  = New_iter;
-            tail_node  = New_iter;
+            head_node			    = New_iter;
+			New_iter->next_iter     = tail_node;
+			tail_node->prev_iter	= New_iter;
             New_Node->graph_itr_loc = (void*) New_iter;
             nodes_numbr++;
             return *New_Node;
         }
+		if (head_node   != tail_node &&
+			nodes_numbr >  0)
+		{
+			New_iter->next_iter		= head_node;
+			head_node->prev_iter	= New_iter;
+			head_node				= New_iter;
+			New_Node->graph_itr_loc = (void*)New_iter;
+			nodes_numbr++;
 
-        New_iter ->next_iter = head_node;
-        head_node->prev_iter = New_iter;
-        head_node            = New_iter;
-        New_Node->graph_itr_loc = (void*) New_iter;
-        nodes_numbr++;
+			return *New_Node;
+		}
+		assert(1);
 
-        return *New_Node;
     }
 
     template <class NodeT, class EdgeT> EdgeT&
@@ -523,24 +547,32 @@ namespace Task
             std::cerr << "bad_alloc caught: " << ba.what() << endl;
             }
 
-        if( edges_numbr == 0 )
+        if( head_edge   == tail_edge &&
+			edges_numbr == 0 )
         {
-            head_edge   = New_iter;
-            tail_edge   = New_iter;
+            head_edge				= New_iter;
+			New_iter->next_iter		= tail_edge;
+			tail_edge->prev_iter    = New_iter;
             edges_numbr++;
-            New_Edge->pred_itr_loc  = (void*) pred.add_pred_iter(New_Edge);
-            New_Edge->succ_itr_loc  = (void*) succ.add_succ_iter(New_Edge);
+            New_Edge->pred_itr_loc  = (void*) succ.add_pred_iter(New_Edge);
+            New_Edge->succ_itr_loc  = (void*) pred.add_succ_iter(New_Edge);
             New_Edge->graph_itr_loc = (void*) New_iter;
             return *New_Edge;
         }
+		if (head_edge   != tail_edge &&
+			edges_numbr >  0)
+		{
 
-        New_iter ->next_iter = head_edge;
-        head_edge->prev_iter = New_iter;
-        head_edge            = New_iter;
-        nodes_numbr++;
-        New_Edge->pred_itr_loc  = (void*) pred.add_pred_iter(New_Edge);
-        New_Edge->succ_itr_loc  = (void*) succ.add_succ_iter(New_Edge);
-        return *New_Edge;
+			New_iter->next_iter = head_edge;
+			head_edge->prev_iter = New_iter;
+			head_edge = New_iter;
+			edges_numbr++;
+			New_Edge->pred_itr_loc  = (void*)succ.add_pred_iter(New_Edge);
+			New_Edge->succ_itr_loc  = (void*)pred.add_succ_iter(New_Edge);
+			New_Edge->graph_itr_loc = (void*)New_iter;
+			return *New_Edge;
+		}
+		assert(1);
     }
 
 
@@ -552,62 +584,50 @@ namespace Task
         {
             //!throw
         }
-        if( to_delete->next_iter == NULL &&
-            to_delete->prev_iter == NULL &&
+        if( to_delete->next_iter == tail_edge &&
             to_delete            == head_edge &&
-            to_delete            == tail_edge &&
             edges_numbr          == 1)
         {
-
-            head_edge   = NULL;
-            tail_edge   = NULL;
-            edges_numbr = 0;
-            (edge.pred_node).remove_pred(edge.pred_itr_loc);
-            (edge.succ_node).remove_succ(edge.succ_itr_loc);
+			tail_edge->prev_iter = NULL;
+            head_edge			 = tail_edge;
+            edges_numbr			 = 0;
+            (edge.succ_node).remove_pred(edge.pred_itr_loc);
+            (edge.pred_node).remove_succ(edge.succ_itr_loc);
             delete to_delete->data;
             delete to_delete;
             return ;
         }
         if( to_delete->prev_iter == NULL &&
+			to_delete->next_iter != NULL &&
             to_delete            == head_edge &&
-            edges_numbr          != 0)
+			edges_numbr			  > 1 &&
+            head_edge            != tail_edge)
         {
             head_edge            = to_delete->next_iter;
             head_edge->prev_iter = NULL;
             edges_numbr--;
-            (edge.pred_node).remove_pred(edge.pred_itr_loc);
-            (edge.succ_node).remove_succ(edge.succ_itr_loc);
+            (edge.succ_node).remove_pred(edge.pred_itr_loc);
+            (edge.pred_node).remove_succ(edge.succ_itr_loc);
             delete to_delete->data;
             delete to_delete;
             return;
         }
-        if( to_delete->next_iter == NULL &&
-            to_delete            == tail_edge &&
-            edges_numbr          != 0)
-        {
-            tail_edge = to_delete->prev_iter;
-            tail_edge->next_iter = NULL;
-            edges_numbr--;
-            (edge.pred_node).remove_pred(edge.pred_itr_loc);
-            (edge.succ_node).remove_succ(edge.succ_itr_loc);
-            delete to_delete->data;
-            delete to_delete;
-            return;
-        }
-        if( to_delete->next_iter != NULL &&
-            to_delete->prev_iter != NULL &&
-            edges_numbr          != 0)
+        if( to_delete			 != head_edge &&
+            head_edge			 != head_edge &&
+			to_delete->prev_iter != NULL &&
+			to_delete->next_iter != NULL &&
+            edges_numbr          >  1)
         {
             (to_delete->prev_iter)->next_iter = to_delete->next_iter;
             (to_delete->next_iter)->prev_iter = to_delete->prev_iter;
             edges_numbr--;
-            (edge.pred_node).remove_pred(edge.pred_itr_loc);
-            (edge.succ_node).remove_succ(edge.succ_itr_loc);
+            (edge.succ_node).remove_pred(edge.pred_itr_loc);
+            (edge.pred_node).remove_succ(edge.succ_itr_loc);
             delete to_delete->data;
             delete to_delete;
             return;
         }
-
+		assert(1);
             //!throw
     }
 
@@ -619,20 +639,18 @@ namespace Task
         {
             //!throw
         }
-        if( to_delete->next_iter == NULL &&
+        if( to_delete->next_iter == tail_node &&
             to_delete->prev_iter == NULL &&
             to_delete            == head_node &&
-            to_delete            == tail_node &&
             nodes_numbr          == 1)
         {
-
-            head_node   = NULL;
-            tail_edge   = NULL;
+			tail_node->prev_iter = NULL;
+            head_node			 = tail_node;
             edges_numbr = 0;
 
-            while( node.head_pred != NULL )
+            while( node.head_pred != node.tail_pred )
                 remove(node.first_pred());
-            while( node.head_succ != NULL )
+            while( node.head_succ != node.tail_succ )
                 remove(node.first_succ());
             delete to_delete->data;
 
@@ -640,33 +658,18 @@ namespace Task
             return ;
         }
         if( to_delete->prev_iter == NULL &&
+			to_delete->next_iter != NULL &&
             to_delete            == head_node &&
-            nodes_numbr          != 0)
+			head_node			 != tail_node &&
+            nodes_numbr           > 1)
         {
             head_node            = to_delete->next_iter;
             head_node->prev_iter = NULL;
             nodes_numbr--;
 
-            while( node.head_pred != NULL )
+			while (node.head_pred != node.tail_pred)
                 remove(node.first_pred());
-            while( node.head_succ != NULL )
-                remove(node.first_succ());
-            delete to_delete->data;
-
-            delete to_delete;
-            return;
-        }
-        if( to_delete->next_iter == NULL &&
-            to_delete            == tail_node &&
-            nodes_numbr          != 0)
-        {
-            tail_node = to_delete->prev_iter;
-            tail_node->next_iter = NULL;
-            nodes_numbr--;
-
-            while( node.head_pred != NULL )
-                remove(node.first_pred());
-            while( node.head_succ != NULL )
+			while (node.head_succ != node.tail_succ)
                 remove(node.first_succ());
             delete to_delete->data;
 
@@ -675,21 +678,22 @@ namespace Task
         }
         if( to_delete->next_iter != NULL &&
             to_delete->prev_iter != NULL &&
-            nodes_numbr          != 0)
+            nodes_numbr           > 1)
         {
             (to_delete->prev_iter)->next_iter = to_delete->next_iter;
             (to_delete->next_iter)->prev_iter = to_delete->prev_iter;
             nodes_numbr--;
 
-            while( node.head_pred != NULL )
+			while (node.head_pred != node.tail_pred)
                 remove(node.first_pred());
-            while( node.head_succ != NULL )
+			while (node.head_succ != node.tail_succ)
                 remove(node.first_succ());
             delete to_delete->data;
 
             delete to_delete;
             return;
         }
+		assert(1);
 
             //!throw
 
@@ -698,8 +702,36 @@ namespace Task
     template <class NodeT, class EdgeT>
     Graph<NodeT, EdgeT>::~Graph()
     {
-        while( head_node != NULL )
+        while( head_node != tail_node )
             remove(*(head_node->data));
+		delete tail_node;
+		delete tail_edge;
     }
+
+	template <class NodeT, class EdgeT>
+	Graph<NodeT, EdgeT>::Graph() :
+		nodes_numbr(0), edges_numbr(0)
+	{
+		try {
+			tail_edge = new edge_iterator;
+		}
+		catch (std::bad_alloc& ba)
+		{
+			std::cerr << "bad_alloc caught: " << ba.what() << endl;
+		}
+
+		head_edge = tail_edge;
+
+		try {
+			tail_node = new node_iterator;
+		}
+		catch (std::bad_alloc& ba)
+		{
+			std::cerr << "bad_alloc caught: " << ba.what() << endl;
+		}
+
+		head_node = tail_node;
+
+	}
 
 }; // namespace Task
