@@ -52,7 +52,7 @@ namespace Task
     Iterator<T>::operator ++()
     {
         if(next_iter==NULL)
-            throw Error();
+            throw Error("Impermissible usage of ++ operator with iterator\n");
 
         data      = next_iter->data;
         prev_iter = next_iter->prev_iter;
@@ -65,7 +65,7 @@ namespace Task
     Iterator<T>::operator ++(int)
     {
         if(next_iter==NULL)
-            throw Error();
+            throw Error("Impermissible usage of ++ operator with iterator\n");
 
         Iterator tmp(next_iter, prev_iter, data);
 
@@ -89,19 +89,10 @@ namespace Task
     template <class T> T&
     Iterator<T>::operator *()
     {
+        if(data == NULL)
+            throw Error("Impermissible usage of adress dereference operator\n");
+
         return *(data);
-    }
-
-    template <class T> Iterator<T>*
-    Iterator<T>::get_next_iter() const
-    {
-        return next_iter;
-    }
-
-    template <class T> T*
-    Iterator<T>::get_data() const
-    {
-        return data;
     }
 //
 //! ---Graph class implementation ----
@@ -112,21 +103,26 @@ namespace Task
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::pred_iterator
         Graph<NodeT,EdgeT>::Node::preds_begin()
         {
-            //!throw here
+            if( head_pred == NULL)
+                throw Error("Impermissable usage of Node::preds_begin() function\n");
+
             return *head_pred;
         }
 
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::pred_iterator
         Graph<NodeT,EdgeT>::Node::preds_end()
         {
-            //!throw here
+            if( tail_pred == NULL )
+                throw Error("Impermissable usage of Node::preds_end() function\n");
+
             return *tail_pred;
         }
 
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::pred_iterator*
         Graph<NodeT,EdgeT>::Node::add_pred_iter(EdgeT* p)
         {
-            //!throw here p!=NULL *graph must be the same
+            if( p == NULL )
+                throw Error("Impermissable usage of Node::add_pred_iter() function\n");
 
             pred_iterator *New_pred_itr;
 
@@ -156,7 +152,7 @@ namespace Task
 				preds_num++;
 				return New_pred_itr;
 			}
-			assert(1);
+			throw Error("Impermissable usage of Node::add_pred_iter() function\n");
         }
 
         template <class NodeT,class EdgeT> void
@@ -165,7 +161,7 @@ namespace Task
             pred_iterator* to_delete = (pred_iterator*) p;
             if(preds_num == 0)
             {
-                //!throw
+                throw Error("Impermissable usage of Node::remove_pred() function\n");
             }
             if(to_delete->next_iter == tail_pred &&
                to_delete->prev_iter == NULL &&
@@ -209,30 +205,35 @@ namespace Task
                 return;
             }
 
-            //!throw
-
+            throw Error("Impermissable usage of Node::remove_pred() function\n");
         }
 
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::succ_iterator
         Graph<NodeT,EdgeT>::Node::succs_begin()
         {
-            //!throw here
+            if( head_succ == NULL )
+                throw Error("Impermissable usage of Node::succs_begin() function\n");
+
             return *head_succ;
         }
 
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::succ_iterator
         Graph<NodeT,EdgeT>::Node::succs_end()
         {
-            //!throw here
-			assert(tail_succ != NULL);
+			if( tail_succ == NULL)
+                throw Error("Impermissable usage of Node::succs_end() function\n");
+
             return *tail_succ;
         }
 
         template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::Node::succ_iterator*
         Graph<NodeT,EdgeT>::Node::add_succ_iter(EdgeT* s)
         {
-            //!throw here p!=NULL *graph must be the same
+            if( s == NULL )
+                throw Error("Impermissible usage of Node:: add_succ_iter() function\n");
+
             succ_iterator *New_succ_itr;
+
             try {
                 New_succ_itr = new succ_iterator;
                 New_succ_itr->data = s;
@@ -259,17 +260,19 @@ namespace Task
 				succs_num++;
 				return New_succ_itr;
 			}
-			assert(1);
+
+			throw Error("Impermissable usage of Node::add_pred_iter() function\n");
         }
 
         template <class NodeT,class EdgeT> void
         Graph<NodeT,EdgeT>::Node::remove_succ(void *s)
         {
             succ_iterator* to_delete = (succ_iterator*) s;
+
             if(succs_num == 0)
-            {
-                //!throw
-            }
+                throw Error("Impermissable usage of Node::remove_succ() function\n");
+
+
             if(to_delete->next_iter == tail_succ &&
                to_delete->prev_iter == NULL &&
                to_delete            == head_succ &&
@@ -302,10 +305,7 @@ namespace Task
                 delete to_delete;
                 return;
             }
-
-			assert(1);
-			throw(1);
-
+            throw Error("Impermissable usage of Node::remove_succ() function\n");
         }
 
         template <class NodeT,class EdgeT> Graph<NodeT,EdgeT>&
@@ -323,9 +323,8 @@ namespace Task
         template <class NodeT,class EdgeT> EdgeT&
         Graph<NodeT,EdgeT>::Node::first_pred()
         {
-            //!another throw may be and getdata must return !NULL
-            if(preds_num == 0)
-                throw Error();
+            if( preds_num == 0 && head_pred->data == NULL )
+                throw Error("Impermissable usage of Node::first_pred() function\n");
 
             return *( head_pred->data );
         }
@@ -333,9 +332,8 @@ namespace Task
         template <class NodeT,class EdgeT> EdgeT&
         Graph<NodeT,EdgeT>::Node::first_succ()
         {
-            //!another throw may be and getdata must return !NULL
-            if(succs_num == 0)
-                throw Error();
+            if( succs_num == 0 && head_succ->data == NULL )
+                throw Error("Impermissable usage of Node::first_succ() function\n");
 
             return *( head_succ->data );
         }
@@ -358,7 +356,8 @@ namespace Task
             parent_graph(g) , id((g.num_nodes())+1),
             preds_num(0),  succs_num(0)
         {
-			try {
+			try
+			{
 				tail_pred = new pred_iterator;
 			}
 			catch (std::bad_alloc& ba)
@@ -379,22 +378,23 @@ namespace Task
 			head_succ = tail_succ;
 		}
 
-        template <class NodeT,class EdgeT>//! ????????????????
+        template <class NodeT,class EdgeT>
         Graph<NodeT,EdgeT>::Node::~Node()
         {
 			delete tail_pred;
 			delete tail_succ;
         }
 
-        template <class NodeT,class EdgeT> //useless?
+        //usage of this functions is banned, so implemention is useless
+        template <class NodeT,class EdgeT>
         Graph<NodeT,EdgeT>::Node::Node() {}
 
-        template <class NodeT,class EdgeT> //need implemention?
+        template <class NodeT,class EdgeT>
         Graph<NodeT,EdgeT>::Node::Node(const Node &n) {}
 
 
     //
-    // ---- Edge class ---- implemention
+    //! ---- Edge class ---- implemention
     //
         template <class NodeT,class EdgeT> NodeT&
         Graph<NodeT,EdgeT>::Edge::pred()
@@ -422,22 +422,19 @@ namespace Task
 
         template <class NodeT,class EdgeT>
         Graph<NodeT,EdgeT>::Edge::Edge( NodeT& p, NodeT& s ):
-            pred_node(p), succ_node(s), parent_graph(p.graph()), id( parent_graph.num_edges()+1)//!check for belonging to one graph
+            pred_node(p), succ_node(s), parent_graph(p.graph()), id( parent_graph.num_edges()+1)
         {}
 
         template <class NodeT,class EdgeT>
         Graph<NodeT,EdgeT>::Edge::~Edge()
-        {
-        //some implemention with node and graph
-        }
-
-        template <class NodeT,class EdgeT>
-        Graph<NodeT,EdgeT>::Edge::Edge() {} //useless?
-
-        template <class NodeT,class EdgeT>
-        Graph<NodeT,EdgeT>::Edge::Edge( const Edge& e):
-            parent_graph(e.graph()), pred_node(e.pred()), succ_node(e.succ()), id(e.uid())
         {}
+
+        //usage of this functions is banned, so implemention is useless
+        template <class NodeT,class EdgeT>
+        Graph<NodeT,EdgeT>::Edge::Edge() {}
+
+        template <class NodeT,class EdgeT>
+        Graph<NodeT,EdgeT>::Edge::Edge( const Edge& e){}
     //
     //
     //
@@ -445,28 +442,36 @@ namespace Task
     template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::node_iterator
     Graph<NodeT,EdgeT>::nodes_begin()
     {
-        //!throw here
+        if( head_node == NULL )
+            throw Error("Impermissable usage of nodes_begin() function\n");
+
         return *head_node;
     }
 
     template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::node_iterator
     Graph<NodeT,EdgeT>::nodes_end()
     {
-        //!throw here
+        if( tail_node == NULL )
+            throw Error("Impermissable usage of nodes_end() function\n");
+
         return *tail_node;
     }
 
     template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::edge_iterator
     Graph<NodeT,EdgeT>::edges_begin()
     {
-        //!throw here
+        if( head_edge == NULL )
+            throw Error("Impermissable usage of edges_begin function\n");
+
         return *head_edge;
     }
 
     template <class NodeT,class EdgeT> typename Graph<NodeT,EdgeT>::edge_iterator
     Graph<NodeT,EdgeT>::edges_end()
     {
-        //!throw here
+        if( tail_edge == NULL )
+            throw Error("Impermissable usage of edges_end() function\n");
+
         return *tail_edge;
     }
 
@@ -523,7 +528,7 @@ namespace Task
 
 			return *New_Node;
 		}
-		assert(1);
+		throw Error("Impermissable usage of create_node() function\n");
 
     }
 
@@ -572,7 +577,7 @@ namespace Task
 			New_Edge->graph_itr_loc = (void*)New_iter;
 			return *New_Edge;
 		}
-		assert(1);
+		throw Error("Impermissable usage of create_edge() function\n");
     }
 
 
@@ -580,10 +585,11 @@ namespace Task
     Graph<NodeT, EdgeT>::remove(EdgeT& edge)
     {
         edge_iterator* to_delete = (edge_iterator*) edge.graph_itr_loc;
+
         if(edges_numbr == 0)
-        {
-            //!throw
-        }
+            throw Error("Impermissable usage of remove(Edge) function, there is no edges to delete\n");
+
+
         if( to_delete->next_iter == tail_edge &&
             to_delete            == head_edge &&
             edges_numbr          == 1)
@@ -613,7 +619,6 @@ namespace Task
             return;
         }
         if( to_delete			 != head_edge &&
-            head_edge			 != head_edge &&
 			to_delete->prev_iter != NULL &&
 			to_delete->next_iter != NULL &&
             edges_numbr          >  1)
@@ -627,8 +632,7 @@ namespace Task
             delete to_delete;
             return;
         }
-		assert(1);
-            //!throw
+		throw Error("Impermissable usage of remove(Edge) function\n");
     }
 
     template <class NodeT, class EdgeT> void
@@ -636,9 +640,8 @@ namespace Task
     {
         node_iterator* to_delete = (node_iterator*) node.graph_itr_loc;
         if( nodes_numbr == 0)
-        {
-            //!throw
-        }
+            throw Error("Impermissable usage of remove(Node) function\n");
+
         if( to_delete->next_iter == tail_node &&
             to_delete->prev_iter == NULL &&
             to_delete            == head_node &&
@@ -693,10 +696,8 @@ namespace Task
             delete to_delete;
             return;
         }
-		assert(1);
 
-            //!throw
-
+		throw Error("Impermissable usage of remove(Node) function\n");
     }
 
     template <class NodeT, class EdgeT>

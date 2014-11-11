@@ -37,19 +37,20 @@ namespace Task
 
             bool           operator ==(const Iterator& other);
             bool           operator !=(const Iterator& other);
-            Iterator&      operator ++(); //prefix incremention
+            Iterator&      operator ++();    //prefix incremention
             Iterator       operator ++(int); //postfix incremention
             Iterator&      operator =(const Iterator& other);
             T&             operator *();
 
-            Iterator*      get_next_iter() const;
-            T*             get_data() const;
-
             class Error: public std::exception
             {
+            public:
+                Error(const char* m){messege=m;}
+                virtual const char* what() const throw(){return messege;}
+            private:
+                const char* messege;
             };
 
-        public: //!to be fixed
             Iterator<T> *next_iter;
             Iterator<T> *prev_iter;
             T *data;
@@ -67,6 +68,11 @@ namespace Task
 
         class Error: public std::exception
         {
+            public:
+                Error(const char* m){messege=m;}
+                virtual const char* what() const throw(){return messege;}
+            private:
+                const char* messege;
         };
         //
         // Graph edge representation
@@ -122,12 +128,12 @@ namespace Task
             pred_iterator preds_begin(); // Get iterator to the first predecessor edge
             pred_iterator preds_end();   // Get end iterator for the predecessors
             pred_iterator* add_pred_iter(EdgeT *p);// Creates a new iterator for new predecessor
-            void remove_pred(void *p);
+            void remove_pred(void *p);//remove successor, banned for user, used only in graph::remove function
 
             succ_iterator succs_begin(); // Get iterator to the first successor edge
             succ_iterator succs_end();   // Get end iterator for the successors
             succ_iterator* add_succ_iter(EdgeT *s);// Creates a new iterator for new successor
-            void remove_succ(void *s);
+            void remove_succ(void *s);//remove successor, banned for user, used only in graph::remove function
 
             Graph& graph();  // Get the graph reference
             UId uid() const; // Get the node's unique id
@@ -137,8 +143,6 @@ namespace Task
 
             UInt32 num_preds() const; // Get the number of predecessors
             UInt32 num_succs() const; // Get the number of successors
-
-            //bool operator ==(const Node& other) const;
 
         protected:
             Node( Graph& g); // Constructor of the node

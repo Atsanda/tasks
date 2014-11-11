@@ -10,13 +10,13 @@ namespace Task
     struct Node: public G::Node
     {
         int weight;
-        Node( G& g): G::Node( g), weight(0){} 
+        Node( G& g): G::Node( g), weight(0){}
     };
 
     struct Edge: public G::Edge
     {
         int weight;
-        Edge( Node& p, Node& s): G::Edge(p, s), weight(0){} 
+        Edge( Node& p, Node& s): G::Edge(p, s), weight(0){}
     };
 
     bool uTest( UnitTest *utest_p)
@@ -31,7 +31,7 @@ namespace Task
         n1.weight = 10;
         n2.weight = 20;
 
-        UTEST_CHECK( utest_p, &n1 == &e1.pred()); 
+        UTEST_CHECK( utest_p, &n1 == &e1.pred());
         UTEST_CHECK(utest_p, n1.succs_begin() != n1.succs_end());
         UTEST_CHECK(utest_p, n1.preds_begin() == n1.preds_end());
         UTEST_CHECK(utest_p, n2.succs_begin() == n2.succs_end());
@@ -67,7 +67,7 @@ namespace Task
             n1.first_pred();
         } catch (G::Error e)
         {
-            throws_correctly = true; 
+            throws_correctly = true;
         }
 
         UTEST_CHECK(utest_p, throws_correctly);
@@ -75,9 +75,9 @@ namespace Task
         e2.weight = 1;
         e3.weight = 2;
         int sum = 0;
-        
+
         // Iterate through the nodes
-        for ( auto n_iter = graph.nodes_begin(), n_end = graph.nodes_end(); 
+        for ( auto n_iter = graph.nodes_begin(), n_end = graph.nodes_end();
               n_iter != n_end; ++n_iter)
         {
             sum += (*n_iter).weight;
@@ -90,7 +90,11 @@ namespace Task
         }
 
         UTEST_CHECK(utest_p, sum == 33);
-      
+
+        graph.remove(n1);
+
+        UTEST_CHECK(utest_p, n2.num_preds() == 0);
+
         return utest_p->result();
     }
 };
